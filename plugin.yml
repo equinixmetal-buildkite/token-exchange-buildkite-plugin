@@ -1,0 +1,19 @@
+name: Identity API
+description: Token Exchange with Identity API
+author: Equinix Metal
+requirements:
+  - bash
+  - curl
+  - uname
+  - buildkite-agent
+configuration:
+  properties:
+    token-endpoint:
+      type: string
+      description: "URL of the authorization server's token endpoint"
+      default: https://iam.metalctrl.io/token
+    debug:
+      type: boolean
+      description: "Enable debug mode"
+      default: false
+  additionalProperties: false

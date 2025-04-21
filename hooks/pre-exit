@@ -1,0 +1,3 @@
+#!/bin/bash
+
+[[ -f "${JQ_BIN}" ]] && rm "${JQ_BIN}"
