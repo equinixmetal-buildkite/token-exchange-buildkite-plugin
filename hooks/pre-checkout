@@ -1,5 +1,11 @@
 JQ_VERSION="1.7.1"
 
+function display_error() {
+  message="$1"
+  echo "🚨 $message" >&2
+  buildkite-agent annotate --style error "$message<br />" --context token-exchange
+}
+
 function die() {
   [[ -f "${REMOVE_FILE_ON_ERR}" ]] && rm "${REMOVE_FILE_ON_ERR}"
   display_error "$2"
