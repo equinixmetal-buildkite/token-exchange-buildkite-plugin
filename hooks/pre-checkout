@@ -70,9 +70,9 @@ function download_jq() {
   v=${1:-$JQ_VERSION}
 
   download_url="https://github.com/jqlang/jq/releases/download/jq-${v}/jq-$(os_cpu_string)"
-  tempdir="$(mktemp -d)" || die 44 "downlaod jq: failed to create temp dir"
+  tempdir="$(mktemp -d)" || die 44 "download jq: failed to create temp dir"
 
-  curl --silent --fail --location --output "${tempdir}/jq" "${download_url}" || die 45 "downlaod jq: failed to download jq"
+  curl --silent --fail --location --output "${tempdir}/jq" "${download_url}" || die 45 "download jq: failed to download jq"
   chmod +x "${tempdir}/jq"
 
   echo ${tempdir}/jq
