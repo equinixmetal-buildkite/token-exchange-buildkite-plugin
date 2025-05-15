@@ -1,5 +1,5 @@
-name: Identity API
-description: Token Exchange with Identity API
+name: Token Exchange
+description: A plugin to perform RFC 6749 token exchange
 author: Equinix Metal
 requirements:
   - bash

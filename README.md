@@ -38,7 +38,7 @@ steps:
   - label: "token-exchange"
     # ...
     plugins:
-      - equinixmetal-buildkite/identity-api#main:
+      - equinixmetal-buildkite/token-exchange#main:
           # required, any oauth2 token endpoint that supports rfc8693 token exchange
           token-endpoint: https://my.issuer.com/token
           # optional, audience for the OIDC token issued by Buildkite, defaults to identity-api

@@ -15,7 +15,7 @@ function die() {
 }
 
 function dbg() {
-  if [[ $BUILDKITE_PLUGIN_IDENTITY_API_DEBUG == "true" ]]; then
+  if [[ $BUILDKITE_PLUGIN_TOKEN_EXCHANGE_DEBUG == "true" ]]; then
     "$@"
   fi
 }
@@ -87,14 +87,14 @@ export JQ_BIN=$(download_jq)
 
 echo "--- :lock: Exchanging Token"
 
-ci_token=$(buildkite-agent oidc request-token --audience ${BUILDKITE_PLUGIN_IDENTITY_API_BUILDKITE_AUDIENCE})
+ci_token=$(buildkite-agent oidc request-token --audience ${BUILDKITE_PLUGIN_TOKEN_EXCHANGE_BUILDKITE_AUDIENCE})
 
 dbg echo "-----Subject Token-----"
 dbg printf "${ci_token}" | ${JQ_BIN} -R 'split(".") | .[1] | @base64d | fromjson'
 dbg echo "-----Subject Token-----"
 
 resp=$(
-  curl --location ${BUILDKITE_PLUGIN_IDENTITY_API_TOKEN_ENDPOINT} \
+  curl --location ${BUILDKITE_PLUGIN_TOKEN_EXCHANGE_TOKEN_ENDPOINT} \
     --silent \
     --fail \
     --header 'Content-Type: application/x-www-form-urlencoded' \
