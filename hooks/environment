@@ -1,3 +1,5 @@
+set -eo pipefail
+
 JQ_VERSION="1.7.1"
 
 function display_error() {
@@ -94,6 +96,7 @@ dbg echo "-----Subject Token-----"
 resp=$(
   curl --location ${BUILDKITE_PLUGIN_IDENTITY_API_TOKEN_ENDPOINT} \
     --silent \
+    --fail \
     --header 'Content-Type: application/x-www-form-urlencoded' \
     --data-urlencode 'grant_type=urn:ietf:params:oauth:grant-type:token-exchange' \
     --data-urlencode 'subject_token_type=urn:ietf:params:oauth:token-type:jwt' \
