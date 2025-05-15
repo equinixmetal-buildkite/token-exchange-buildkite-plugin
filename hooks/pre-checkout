@@ -85,7 +85,7 @@ export JQ_BIN=$(download_jq)
 
 echo "--- :lock: Exchanging Token"
 
-ci_token=$(buildkite-agent oidc request-token --audience identity-api)
+ci_token=$(buildkite-agent oidc request-token --audience ${BUILDKITE_PLUGIN_IDENTITY_API_BUILDKITE_AUDIENCE})
 
 dbg echo "-----Subject Token-----"
 dbg printf "${ci_token}" | ${JQ_BIN} -R 'split(".") | .[1] | @base64d | fromjson'
@@ -100,8 +100,8 @@ resp=$(
     --data-urlencode "subject_token=${ci_token}"
 )
 
-export IDENTITY_API_TOKEN=$(printf "$resp" | ${JQ_BIN} -r '.access_token')
+export FEDERATED_ACCESS_TOKEN=$(printf "$resp" | ${JQ_BIN} -r '.access_token')
 
 dbg echo "-----Access Token-----"
-dbg printf "${IDENTITY_API_TOKEN}" | ${JQ_BIN} -R 'split(".") | .[1] | @base64d | fromjson'
+dbg printf "${FEDERATED_ACCESS_TOKEN}" | ${JQ_BIN} -R 'split(".") | .[1] | @base64d | fromjson'
 dbg echo "-----Access Token-----"
