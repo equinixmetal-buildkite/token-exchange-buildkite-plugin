@@ -87,6 +87,9 @@ export JQ_BIN=$(download_jq)
 
 echo "--- :lock: Exchanging Token"
 
+dbg echo "-----Environment Variables-----"
+dbg printf "%s\n" "$(env | sort)"
+
 ci_token=$(buildkite-agent oidc request-token --audience ${BUILDKITE_PLUGIN_TOKEN_EXCHANGE_BUILDKITE_AUDIENCE})
 
 dbg echo "-----Subject Token-----"
