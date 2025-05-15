@@ -1,4 +1,4 @@
-# identity-api-buildkite-plugin
+# Token Exchange Plugin for Buildkite
 
 This Buildkite plugin provides a way to exchange tokens with any OAuth2 token endpoint
 that supports [RFC 8693](https://datatracker.ietf.org/doc/html/rfc8693) token exchange.
@@ -31,13 +31,6 @@ In addition, you need to obtain the token endpoint URL for the external service'
 This is typically can be found in the providers' OIDC discovery endpoint, which is usually
 located at `https://<provider>/.well-known/openid-configuration`.
 
-> [!NOTE]
-> If you are using the Equinix Delivery Identity API,
-> currently only pipelines under the org `equinix` are allowed to exchange
-> tokens. See [infra9-tools configs](
-> https://github.com/equinixmetal/infra9-tools/blob/77ea390a7d35086d51965d09fad654aaf5dedccf/data/prod/delivery.yaml#L136
-> )
-
 ## Usage
 
 ```yaml
@@ -46,9 +39,8 @@ steps:
     # ...
     plugins:
       - equinixmetal-buildkite/identity-api#main:
-          # optional, any oauth2 token endpoint that supports rfc8693 token exchange,
-          # defaults to https://iam.metalctrl.io/token
-          token-endpoint: https://iam.metalctrl.io/token
+          # required, any oauth2 token endpoint that supports rfc8693 token exchange
+          token-endpoint: https://my.issuer.com/token
           # optional, audience for the OIDC token issued by Buildkite, defaults to identity-api
           audience: identity-api
           # optional, defaults to false
@@ -66,18 +58,3 @@ steps:
 
     # ...
 ```
-
-## Claim Mappings
-
-Claim mappings in the Identity API are defined [here](https://github.com/equinixmetal/infra9-tools/blob/77ea390a7d35086d51965d09fad654aaf5dedccf/data/prod/delivery.yaml#L126-L135)
-
-| Identity API Claims | Buildkite Claims               |
-|---------------------|---------------------------------|
-| `sub`               | `organization_slug/pipeline_slug` |
-| `upstream_sub`      | `sub`                          |
-| `repository`        | `pipeline_slug`               |
-| `ref`               | `pipeline_branch`             |
-| `organization`      | `organization_slug`           |
-| `job_id`            | `job_id`                      |
-| `commit_sha`        | `commit`                      |
-| `ci`                | `"buildkite"`                 |
