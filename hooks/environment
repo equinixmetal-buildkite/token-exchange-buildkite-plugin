@@ -1,0 +1,112 @@
+set -euo pipefail
+
+JQ_VERSION="1.7.1"
+BUILDKITE_PLUGIN_TOKEN_EXCHANGE_DEBUG=${BUILDKITE_PLUGIN_TOKEN_EXCHANGE_DEBUG:-false}
+
+function display_error() {
+  message="$1"
+  echo "🚨 $message" >&2
+  buildkite-agent annotate --style error "$message<br />" --context token-exchange
+}
+
+function die() {
+  [[ -f "${REMOVE_FILE_ON_ERR}" ]] && rm "${REMOVE_FILE_ON_ERR}"
+  display_error "$2"
+  exit "$1"
+}
+
+function dbg() {
+  if [[ $BUILDKITE_PLUGIN_TOKEN_EXCHANGE_DEBUG == "true" ]]; then
+    "$@"
+  fi
+}
+
+# os_cpu_string retrieves information from the runtime
+# environment and uses it to build the OS and CPU string that
+# appears in each cosign release's file name.
+#
+function os_cpu_string() {
+  local UNAME_INFO=""
+  if ! UNAME_INFO="$(uname -a)"; then
+    die 1 "failed to run uname"
+  fi
+
+  local RUNTIME_OS=""
+  local RUNTIME_CPU=""
+
+  case "${UNAME_INFO}" in
+    *Darwin*)
+      RUNTIME_OS=macos
+      ;;
+    *Linux*)
+      RUNTIME_OS=linux
+      ;;
+    *)
+      die 2 "failed to determine current computer's operating system"
+      ;;
+  esac
+
+  case "${UNAME_INFO}" in
+    *amd64*)
+      RUNTIME_CPU=amd64
+      ;;
+    *x86_64*)
+      RUNTIME_CPU=amd64
+      ;;
+    *arm64*)
+      RUNTIME_CPU=arm64
+      ;;
+    *aarch64*)
+      RUNTIME_CPU=arm64
+      ;;
+    *)
+      die 3 "failed to determine current computer's cpu"
+      ;;
+  esac
+
+  echo "${RUNTIME_OS}-${RUNTIME_CPU}"
+
+  return 0
+}
+
+function download_jq() {
+  v=${1:-$JQ_VERSION}
+
+  download_url="https://github.com/jqlang/jq/releases/download/jq-${v}/jq-$(os_cpu_string)"
+  tempdir="$(mktemp -d)" || die 44 "download jq: failed to create temp dir"
+
+  curl --silent --fail --location --output "${tempdir}/jq" "${download_url}" || die 45 "download jq: failed to download jq"
+  chmod +x "${tempdir}/jq"
+
+  echo ${tempdir}/jq
+
+  return 0
+}
+
+# main
+export JQ_BIN=$(download_jq)
+
+echo "--- :lock: Exchanging Token"
+
+aud=${BUILDKITE_PLUGIN_TOKEN_EXCHANGE_BUILDKITE_AUDIENCE:-buildkite}
+ci_token=$(buildkite-agent oidc request-token --audience ${aud})
+
+dbg echo "-----Subject Token-----"
+dbg printf "${ci_token}" | ${JQ_BIN} -R 'split(".") | .[1] | @base64d | fromjson'
+dbg echo "-----Subject Token-----"
+
+resp=$(
+  curl --location ${BUILDKITE_PLUGIN_TOKEN_EXCHANGE_TOKEN_ENDPOINT} \
+    --silent \
+    --fail \
+    --header 'Content-Type: application/x-www-form-urlencoded' \
+    --data-urlencode 'grant_type=urn:ietf:params:oauth:grant-type:token-exchange' \
+    --data-urlencode 'subject_token_type=urn:ietf:params:oauth:token-type:jwt' \
+    --data-urlencode "subject_token=${ci_token}"
+)
+
+export FEDERATED_ACCESS_TOKEN=$(printf "$resp" | ${JQ_BIN} -r '.access_token')
+
+dbg echo "-----Access Token-----"
+dbg printf "${FEDERATED_ACCESS_TOKEN}" | ${JQ_BIN} -R 'split(".") | .[1] | @base64d | fromjson'
+dbg echo "-----Access Token-----"

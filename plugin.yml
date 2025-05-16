@@ -1,0 +1,21 @@
+name: Token Exchange
+description: A plugin to perform RFC 6749 token exchange
+author: Equinix Metal
+requirements:
+  - bash
+  - curl
+  - uname
+  - buildkite-agent
+configuration:
+  properties:
+    token-endpoint:
+      type: string
+      description: "URL of the authorization server's token endpoint"
+      required: true
+    buildkite-audience:
+      type: string
+      description: "Audience for Buildkite OIDC token"
+    debug:
+      type: boolean
+      description: "Enable debug mode"
+  additionalProperties: false
