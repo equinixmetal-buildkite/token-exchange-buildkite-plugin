@@ -90,7 +90,8 @@ echo "--- :lock: Exchanging Token"
 dbg echo "-----Environment Variables-----"
 dbg printf "%s\n" "$(env | sort)"
 
-ci_token=$(buildkite-agent oidc request-token --audience ${BUILDKITE_PLUGIN_TOKEN_EXCHANGE_BUILDKITE_AUDIENCE})
+aud=${BUILDKITE_PLUGIN_TOKEN_EXCHANGE_BUILDKITE_AUDIENCE:-"identity-api"}
+ci_token=$(buildkite-agent oidc request-token --audience ${aud})
 
 dbg echo "-----Subject Token-----"
 dbg printf "${ci_token}" | ${JQ_BIN} -R 'split(".") | .[1] | @base64d | fromjson'

@@ -11,12 +11,11 @@ configuration:
     token-endpoint:
       type: string
       description: "URL of the authorization server's token endpoint"
+      required: true
     buildkite-audience:
       type: string
       description: "Audience for Buildkite OIDC token"
-      default: identity-api
     debug:
       type: boolean
       description: "Enable debug mode"
-      default: false
   additionalProperties: false
