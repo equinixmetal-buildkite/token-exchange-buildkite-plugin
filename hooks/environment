@@ -1,6 +1,7 @@
-set -eo pipefail
+set -euo pipefail
 
 JQ_VERSION="1.7.1"
+BUILDKITE_PLUGIN_TOKEN_EXCHANGE_DEBUG=${BUILDKITE_PLUGIN_TOKEN_EXCHANGE_DEBUG:-false}
 
 function display_error() {
   message="$1"
@@ -87,7 +88,7 @@ export JQ_BIN=$(download_jq)
 
 echo "--- :lock: Exchanging Token"
 
-aud=${BUILDKITE_PLUGIN_TOKEN_EXCHANGE_BUILDKITE_AUDIENCE:-"identity-api"}
+aud=${BUILDKITE_PLUGIN_TOKEN_EXCHANGE_BUILDKITE_AUDIENCE:-buildkite}
 ci_token=$(buildkite-agent oidc request-token --audience ${aud})
 
 dbg echo "-----Subject Token-----"

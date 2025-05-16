@@ -41,8 +41,8 @@ steps:
       - equinixmetal-buildkite/token-exchange#main:
           # required, any oauth2 token endpoint that supports rfc8693 token exchange
           token-endpoint: https://my.issuer.com/token
-          # optional, audience for the OIDC token issued by Buildkite, defaults to identity-api
-          audience: identity-api
+          # optional, audience for the OIDC token issued by Buildkite, defaults to `buildkite`
+          audience: buildkite
           # optional, defaults to false
           debug: true
 
